@@ -24,7 +24,7 @@ section.panel{display:none}section.panel.active{display:block}.box{background:va
 code{overflow-wrap:anywhere}.warning{color:#8a4e1a}
 @media(max-width:650px){.integration-grid{grid-template-columns:1fr}}
 </style></head><body>
-<div class="demo">試作 v0.3｜Public版には営業データを同梱していません。Google OAuthを設定し、非公開Sheetを認証して読み込みます。</div>
+<div class="demo">試作 v0.3.1｜営業データは非公開Google Sheetsから取得。読み込んだ施設マスターは同じタブの再読み込み時に一時復元します。</div>
 <header><div class="wrap"><div class="quiet" style="color:#d2e7f4;letter-spacing:.15em">SALES FIELD TOOL · PRIVATE</div><h1>営業管理</h1><p>ライフデリ八戸｜今日の訪問・営業先台帳・再訪フォロー</p></div></header>
 <main><div class="tabs" role="tablist" aria-label="画面切替"><button data-tab="today" class="active" role="tab" aria-selected="true">本日の10件</button><button data-tab="master" role="tab">全営業先</button><button data-tab="follow" role="tab">再訪・履歴</button><button data-tab="summary" role="tab">集計</button><button data-tab="settings" role="tab">設定・保存</button></div>
 <section class="panel active" id="today" role="tabpanel"><div class="box"><div class="topline"><div><p class="quiet" style="margin:0">Today's route</p><h2 style="margin:2px 0">本日の営業ルート</h2><div id="routeSummary" class="quiet"></div></div><div class="tools"><button class="subbtn" id="editRouteBtn">営業先を入れ替える</button><button class="subbtn" id="mapRouteBtn">順路をマップで開く ↗</button></div></div><div class="integration-controls"><button type="button" id="loadAiBtn" class="subbtn">☁ DriveのAI選定を取込</button><button type="button" id="localSuggestBtn" class="ghost">暫定候補10件を計算</button></div><div class="kpis" id="todayKpis"></div><div class="notice quiet" id="todayNotice">指定の10件はExcelの本日の営業ルートから引継ぎました。訪問済みと自動判定しません。</div></div><div id="aiRouteEvidence" class="ai-detail" style="display:none;margin-top:11px"></div><div id="todayCards" class="cards"></div></section>
@@ -41,13 +41,13 @@ code{overflow-wrap:anywhere}.warning{color:#8a4e1a}
  <p class="quiet">ログイン処理はHTTPSで公開したアプリから実行してください。ファイルプレビュー（file://）ではGoogle OAuthを利用できません。Google CloudでDrive API・Sheets APIを有効化し、Webクライアントの承認済みJavaScript生成元へアプリの公開オリジンを登録してください。</p>
  <p class="quiet">権限：アプリ専用Driveファイル（drive.file）とGoogle Sheetsの読書き（spreadsheets）。Sheets権限はアカウント内の他のスプレッドシートにも及ぶため、ご本人のGoogleアカウント・専用Cloudプロジェクトでご利用ください。アクセストークンやAPIキーは保存しません。</p>
  <div class="integration-controls"><button id="saveIntegrationBtn" type="button" class="subbtn">接続設定を保存</button><button id="connectGoogleBtn" type="button">Googleで接続</button><button id="disconnectGoogleBtn" type="button" class="ghost">接続解除</button></div>
- <div class="integration-controls"><button id="loadMasterBtn" type="button" class="subbtn">施設マスターを読み込む</button></div><div class="integration-controls"><button id="saveDriveBtn" type="button" class="subbtn">Driveへバックアップ・同期</button><button id="loadDriveBtn" type="button" class="subbtn">Driveから復元・統合</button><button id="syncSheetVisitsBtn" type="button" class="subbtn">訪問履歴をSheetへ送信</button></div>
+ <div class="integration-controls"><button id="loadMasterBtn" type="button" class="subbtn">施設マスターを再取得</button></div><p class="quiet">施設マスターを読み込んだ後は、このタブ内で最大24時間一時保存して再読み込み時に自動復元します。別タブ・ブラウザ終了後・一時データ削除後にはGoogle再認証が必要な場合があります。共有端末では利用せず、利用終了時は「接続解除」で一時データを削除してください。同期に使うGoogle認証トークンは保存しません。</p><div class="integration-controls"><button id="saveDriveBtn" type="button" class="subbtn">Driveへバックアップ・同期</button><button id="loadDriveBtn" type="button" class="subbtn">Driveから復元・統合</button><button id="syncSheetVisitsBtn" type="button" class="subbtn">訪問履歴をSheetへ送信</button></div>
  <label class="checkline"><input id="autoDriveSync" type="checkbox" checked>営業記録の保存後にDrive同期を試みる（未認証時は端末へ保存）</label>
  <p class="quiet">Driveバックアップ：<code>営業管理_非公開バックアップ.json</code>（本人のMy Driveに作成）。端末間の自動同期ではなく、ユーザーが同じGoogleアカウントで接続すると復元・統合できます。オフライン中は端末保存を継続します。</p>
  <div id="integrationLog" role="status" aria-live="polite" class="integration-log">未接続。Google CloudのOAuth設定後に有効化できます。</div>
  <p class="quiet">AI選定シート：<a target="_blank" rel="noopener noreferrer" id="hubSheetLink">連携台帳をGoogle Sheetsで開く ↗</a>。シートの「AI選定」に当日の日付で最大10行が記録されると取り込めます。別日・未確認の情報は自動的に本日の実績として処理しません。</p>
  </div><div class="box"><h2>引継ぎ元と検証状況</h2><div class="quiet" id="sourceStats"></div><p class="quiet">販売用・公開用ではありません。訪問履歴や取引先メモを公開GitHubに載せないでください。</p></div></section>
-<div class="footer">営業管理 v0.3｜Publicコード＋Private Google Sheets方式／本番OAuth・実機検証待ち</div></main>
+<div class="footer">営業管理 v0.3.1｜Publicコード＋Private Google Sheets方式／ブラウザ内一時復元対応</div></main>
 <dialog id="recordDialog" aria-labelledby="recordTitle"><div class="inner"><h2 id="recordTitle">訪問を記録</h2><p class="quiet" id="recordName"></p><form id="recordForm"><div class="grid"><div class="field"><label for="recordStatus">訪問状況</label><select id="recordStatus" required><option value="未訪問">未訪問</option><option>訪問済み</option><option>不在</option><option>再訪</option><option>見込みあり</option><option>見込みなし</option></select></div><div class="field"><label for="recordDate">訪問日／更新日</label><input id="recordDate" type="date" required></div><div class="field"><label for="recordNext">次回訪問予定日（任意）</label><input id="recordNext" type="date"></div><div class="field"><label for="recordContact">担当者（任意）</label><input id="recordContact" type="text" placeholder="例：施設長・事務担当"></div><div class="field full"><label for="recordNote">訪問メモ（任意）</label><textarea id="recordNote" placeholder="例：厨房で困っている点、人数、提案内容、見積送付予定"></textarea></div></div><div class="row"><button type="button" id="cancelDialog" class="subbtn">閉じる</button><button type="submit">履歴へ保存する</button></div></form></div></dialog>
 <dialog id="routeDialog" aria-labelledby="routeDialogTitle"><div class="inner" style="padding:20px"><h2 id="routeDialogTitle">営業先の選択（最大10件）</h2><p class="quiet">チェックして保存してください。入力順で並びます。これ自体はAI選定や最短経路計算ではありません。</p><div class="field"><input type="search" id="routeSearch" placeholder="施設名・住所を検索"></div><div id="selectedRoute" class="chips" style="margin:10px 0"></div><div class="selectrows" id="routeCandidates"></div><div class="tools" style="margin-top:12px"><button class="subbtn" id="closeRouteDialog">閉じる</button><button id="saveRouteBtn">選択した順番で保存</button></div></div></dialog>
 <dialog id="customDialog" aria-labelledby="customDialogTitle"><div class="inner" style="padding:20px"><h2 id="customDialogTitle">営業先を追加</h2><form id="customForm"><div class="grid"><div class="field full"><label>事業所名（必須）</label><input id="customName" required></div><div class="field full"><label>住所（必須）</label><input id="customAddress" required placeholder="青森県八戸市..."></div><div class="field"><label>種別</label><input id="customType" placeholder="例：介護"></div><div class="field"><label>電話番号</label><input id="customPhone" type="tel" inputmode="tel"></div></div><div class="tools" style="margin-top:12px"><button type="button" class="subbtn" id="closeCustom">閉じる</button><button type="submit">施設を保存</button></div></form></div></dialog>
@@ -82,7 +82,7 @@ function hasVisitOn(id,date){return state.visits.some(v=>v.id===id&&v.date===dat
 function renderToday(){const f=routeFacilities();el('routeSummary').textContent=`${state.routeDate||'日付未設定'} ｜ ${state.area||'エリア未設定'} ｜ ${f.length}件`;const completed=f.filter(x=>hasVisitOn(x.id,state.routeDate)).length;
  el('todayKpis').innerHTML=kpi('今日の営業先',f.length)+kpi('訪問結果の記録',completed)+kpi('未記録',f.length-completed)+kpi('見込みあり',f.filter(x=>record(x.id).status==='見込みあり').length);
  el('todayCards').innerHTML=cardsHtml(f,true);
- el('todayNotice').textContent=!DATA.facilities.length?'非公開の施設マスターは未読込です。「設定・保存」からGoogle認証で読み込んでください。':state.routeSelection?.method?'AI選定・営業ルートの根拠は下記をご確認ください。':'この日付のルートは端末内で編集されたものです。AIの自動選定ではありません。';if(state.routeSelection?.date===state.routeDate){const info=state.routeSelection,box=el('aiRouteEvidence');box.style.display='block';box.innerHTML='<strong>選定方式：</strong>'+esc(info.method)+'<br><strong>根拠：</strong>'+esc(info.summary||'')+((info.items||[]).length?'<hr>'+info.items.map(x=>{let f=facById(x.id);return '<p>・'+esc(f?.name||x.id)+'：'+esc(x.reason||'')+(x.score!=null?'（参考 '+esc(x.score)+'点）':'')+(x.url?' <a target="_blank" rel="noopener noreferrer" href="'+esc(x.url)+'">根拠</a>':'')+'</p>'}).join(''):'');}else el('aiRouteEvidence').style.display='none';}
+ el('todayNotice').textContent=!DATA.facilities.length?'非公開の施設マスターは未読込です。「設定・保存」からGoogle認証で読み込んでください。':masterFromSession&&!window.ldDriveConnected?'施設マスターはこのタブの一時保存から自動復元しました。Googleとの同期には「設定・保存」から再認証が必要です。':state.routeSelection?.method?'AI選定・営業ルートの根拠は下記をご確認ください。':'この日付のルートは端末内で編集されたものです。';if(state.routeSelection?.date===state.routeDate){const info=state.routeSelection,box=el('aiRouteEvidence');box.style.display='block';box.innerHTML='<strong>選定方式：</strong>'+esc(info.method)+'<br><strong>根拠：</strong>'+esc(info.summary||'')+((info.items||[]).length?'<hr>'+info.items.map(x=>{let f=facById(x.id);return '<p>・'+esc(f?.name||x.id)+'：'+esc(x.reason||'')+(x.score!=null?'（参考 '+esc(x.score)+'点）':'')+(x.url?' <a target="_blank" rel="noopener noreferrer" href="'+esc(x.url)+'">根拠</a>':'')+'</p>'}).join(''):'');}else el('aiRouteEvidence').style.display='none';}
 let searchDebounce;
 function renderMaster(){let all=allFacilities(),q=clean(el('searchInput').value).toLocaleLowerCase('ja'),st=el('statusFilter').value;
  if(q)all=all.filter(f=>(f.name+' '+f.type+' '+f.service+' '+f.address+' '+f.operator).toLocaleLowerCase('ja').includes(q));
@@ -134,6 +134,13 @@ el('customForm').onsubmit=e=>{e.preventDefault();const name=clean(el('customName
 /* v0.2: Google Drive state backup, Google Sheets daily-AI bridge, local deterministic fallback */
 const LINKCFG='ld_sales_integration_v03';
 const HUB_DEFAULT='';
+const MASTER_SESSION_KEY='ld_sales_private_master_session_v031';
+const MASTER_SESSION_AGE_MS=24*60*60*1000;
+let masterFromSession=false;
+function clearMasterSession(){try{sessionStorage.removeItem(MASTER_SESSION_KEY)}catch(_e){}masterFromSession=false}
+function storeMasterSession(){try{const payload={version:1,sheetId:integration.masterSpreadsheetId,clientId:integration.clientId,savedAt:Date.now(),facilities:DATA.facilities};sessionStorage.setItem(MASTER_SESSION_KEY,JSON.stringify(payload));return true}catch(_e){return false}}
+function restoreMasterSession(){try{const raw=sessionStorage.getItem(MASTER_SESSION_KEY);if(!raw)return false;const p=JSON.parse(raw),age=Date.now()-Number(p.savedAt);if(p.version!==1||p.sheetId!==integration.masterSpreadsheetId||p.clientId!==integration.clientId||!Number.isFinite(age)||age<0||age>MASTER_SESSION_AGE_MS||!Array.isArray(p.facilities)||p.facilities.length<1||p.facilities.length>5000||p.facilities.some(f=>!f||typeof f.id!=='string'||typeof f.name!=='string'||typeof f.address!=='string')||new Set(p.facilities.map(f=>f.id)).size!==p.facilities.length){clearMasterSession();return false}DATA.facilities=p.facilities;DATA.sourceName='このタブの一時キャッシュ（Google Sheetsから取得済み）';DATA.sourceSheet='施設マスター';masterFromSession=true;return true}catch(_e){clearMasterSession();return false}}
+
 const BACKUP_NAME='営業管理_非公開バックアップ.json';
 const SCOPES='https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets';
 let integration={clientId:'',spreadsheetId:HUB_DEFAULT,masterSpreadsheetId:'',autoSync:true};
@@ -146,7 +153,8 @@ function updateIntegrationUi(message,error=false){const badge=el('driveBadge');c
  if(message){const b=el('integrationLog');b.textContent=message;b.classList.toggle('error',error)}
  el('hubSheetLink').href=/^[\w-]{20,}$/.test(integration.spreadsheetId)?'https://docs.google.com/spreadsheets/d/'+integration.spreadsheetId+'/edit':'#';
 }
-function saveIntegration(){integration.clientId=clean(el('oauthClientId').value);integration.spreadsheetId=clean(el('aiSpreadsheetId').value);integration.masterSpreadsheetId=clean(el('masterSpreadsheetId').value);integration.autoSync=el('autoDriveSync').checked;
+function saveIntegration(){const oldMaster=integration.masterSpreadsheetId,oldClient=integration.clientId;integration.clientId=clean(el('oauthClientId').value);integration.spreadsheetId=clean(el('aiSpreadsheetId').value);integration.masterSpreadsheetId=clean(el('masterSpreadsheetId').value);integration.autoSync=el('autoDriveSync').checked;
+ if(oldMaster!==integration.masterSpreadsheetId||oldClient!==integration.clientId){clearMasterSession();DATA.facilities=[];render()}
  try{localStorage.setItem(LINKCFG,JSON.stringify(integration));updateIntegrationUi('接続設定をこの端末に保存しました。Google認証は別途必要です。')}catch(_e){updateIntegrationUi('このプレビューでは設定の永続保存ができません。HTTPSアプリから開いてください。',true)}}
 el('oauthClientId').value=integration.clientId;el('aiSpreadsheetId').value=integration.spreadsheetId;el('masterSpreadsheetId').value=integration.masterSpreadsheetId;el('autoDriveSync').checked=integration.autoSync;
 el('saveIntegrationBtn').onclick=()=>{saveIntegration();toast('Google接続設定を保存しました')};
@@ -161,7 +169,7 @@ async function connectGoogle(){saveIntegration();if(!window.isSecureContext||loc
  try{await loadFacilityMaster();await syncToDrive();await syncVisitHistoryToSheet();if(state.routeDate===today()&&!state.route.length)await loadAiSelection(true)}catch(e){const stage=DATA.facilities.length?'後続のDriveバックアップまたは訪問履歴の同期':'非公開施設マスターの読み込み';const hint=/(403|permission|forbidden|access_denied)/i.test(String(e.message))?'。ログインしたGoogleアカウントに対象Sheetのアクセス権があるか確認してください。必要なら「Googleで接続」から別のアカウントを選択できます。':'';updateIntegrationUi('Google認証成功。ただし'+stage+'で問題: '+e.message+hint,true)}
  }});googleTokenClient.requestAccessToken({prompt:'select_account'})}catch(e){updateIntegrationUi('Google認証: '+e.message,true)}}
 el('connectGoogleBtn').onclick=connectGoogle;
-el('disconnectGoogleBtn').onclick=()=>{if(googleToken&&window.google?.accounts?.oauth2)google.accounts.oauth2.revoke(googleToken,()=>{});googleToken='';tokenExpires=0;googleTokenClient=null;driveFileId='';DATA.facilities=[];render();updateIntegrationUi('Google接続解除：非公開施設マスターを画面メモリから破棄しました。端末内の訪問記録は残ります。')};
+el('disconnectGoogleBtn').onclick=()=>{if(googleToken&&window.google?.accounts?.oauth2)google.accounts.oauth2.revoke(googleToken,()=>{});googleToken='';tokenExpires=0;googleTokenClient=null;driveFileId='';clearMasterSession();DATA.facilities=[];render();updateIntegrationUi('Google接続解除：非公開施設マスターを画面メモリから破棄しました。端末内の訪問記録は残ります。')};
 const authOk=()=>!!googleToken&&Date.now()<tokenExpires;
 async function gApi(url,opt={}){if(!authOk())throw Error('Google認証が必要です。「Googleで接続」を押してください。');
  const r=await fetch(url,{...opt,headers:{...opt.headers,Authorization:'Bearer '+googleToken}});const raw=await r.text();let payload;try{payload=raw?JSON.parse(raw):{}}catch(_e){payload={raw}}
@@ -221,10 +229,12 @@ async function loadFacilityMaster(){
  const list=vals.slice(1).filter(r=>r[0]&&r[1]).map(r=>Object.fromEntries(expected.map((key,i)=>[key,cleanV(r[i])])));
  if(list.length<1||new Set(list.map(f=>f.id)).size!==list.length)throw Error('施設マスターが空またはID重複のため、取込を中止しました。');
  DATA.facilities=list;
+ masterFromSession=false;
+ const cached=storeMasterSession();
  DATA.sourceName='Google Drive 非公開施設マスター';
  DATA.sourceSheet='施設マスター';
  render();
- updateIntegrationUi('非公開施設マスター '+list.length+'件を認証済みGoogle Sheetsから取得しました。');
+ updateIntegrationUi('非公開施設マスター '+list.length+'件を認証済みGoogle Sheetsから取得しました。'+(cached?' 今後このタブの再読み込み時は自動復元されます。':' 端末の一時保存が利用できないため、次回も取得が必要です。'));
  return list.length;
 }
 el('loadMasterBtn').onclick=withGoogle(loadFacilityMaster);
@@ -280,7 +290,8 @@ el('saveRouteBtn').onclick=(e)=>{const before=JSON.stringify(state.route);prevSa
 const prevSaveRouteMeta=el('saveRouteMetaBtn').onclick;
 el('saveRouteMetaBtn').onclick=(e)=>{const before=state.routeDate+'|'+state.area;prevSaveRouteMeta(e);if(before!==state.routeDate+'|'+state.area){state.routeUpdatedAt=new Date().toISOString();state.routeSelection=null;persist()}};
 if(!state.routeDate||state.routeDate<today()){state.routeDate=today();state.route=[];state.area='当日のAI選定待ち';state.routeSelection=null;state.routeUpdatedAt=new Date().toISOString();persist()}
-updateIntegrationUi('Google認証を設定するとDriveバックアップとSheet連携を利用できます。');
+const didRestore=restoreMasterSession();
+updateIntegrationUi(didRestore?'施設マスター '+DATA.facilities.length+'件をこのタブの一時保存から復元しました。表示はできますが、最新情報の取得・Drive同期にはGoogle再認証が必要です。':'Google認証を設定するとDriveバックアップとSheet連携を利用できます。');
 
 render();
 </script></body></html>
