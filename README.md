@@ -28,3 +28,13 @@
 - Cloudflare/GitHubの操作はアカウントで必要な権限があるユーザーが実行する。
 - 元のv0.2で入力済みの情報を引き継ぐ場合は、旧版からJSONをエクスポートし、v0.3の設定から復元する（端末が違う場合も同様）。
 - 公開コードは誰でも読める想定。APIシークレットの利用が必要になればバックエンドへ移す。
+
+## Cloudflare Workers 自動公開（2026-10-16 接続復旧後）
+- 公開先: `https://lifedeli-sales-app.life-works5782.workers.dev`
+- Git 接続: `lifeworks5783-gif/lifedeli-sales-app` の `main`。GitHub Actions は使わない。
+- Cloudflare Workers Builds のデプロイコマンド: `npx wrangler deploy`。ビルドコマンドは空欄。
+- `wrangler.jsonc` の `assets.directory` は `./public`。本番画面は `public/index.html` を配信する。
+- UI 版数: v0.3.2。施設一覧は GitHub に含めず、Google認証後に非公開 Sheets から読み込む。
+- 同一ブラウザでの画面再読み込み・別タブの施設マスター自動復元には端末の localStorage を使う（最大7日、認証トークンは保存しない）。
+- Googleの権限は画面利用者自身のアカウントに必要。共有端末で営業データを扱わない。
+- Git再接続後の最初のビルドは `main` への新コミットで起動する。デプロイの成功とライブ版数は Cloudflare 側で別途確認する。
