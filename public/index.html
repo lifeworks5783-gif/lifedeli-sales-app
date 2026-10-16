@@ -79,7 +79,7 @@ function tab(name){document.querySelectorAll('.tabs button').forEach(b=>{const a
 function kpi(label,val){return `<div class="kpi"><strong>${val}</strong><span>${esc(label)}</span></div>`}
 function routeFacilities(){return state.route.map(facById).filter(Boolean)}
 function hasVisitOn(id,date){return state.visits.some(v=>v.id===id&&v.date===date&&v.status!=='未訪問')}
-function renderToday(){const f=routeFacilities();el('routeSummary').textContent=`${state.routeDate||'日付未設定'} ｜ ${state.area||'エリア未設定'} ｜ ${f.length}件`;const completed=f.filter(x=>hasVisitOn(x.id,state.routeDate)).length;
+function renderToday(){const f=routeFacilities();el('routeSummary').textContent=`${state.routeDate||'日付未設定'} ｜ ${state.area||'エリア未設定'} ｜ ${!DATA.facilities.length&&state.route.length?state.route.length+'件の候補IDを保持（施設マスター未読込）':f.length+'件'}`;const completed=f.filter(x=>hasVisitOn(x.id,state.routeDate)).length;
  el('todayKpis').innerHTML=kpi('今日の営業先',f.length)+kpi('訪問結果の記録',completed)+kpi('未記録',f.length-completed)+kpi('見込みあり',f.filter(x=>record(x.id).status==='見込みあり').length);
  el('todayCards').innerHTML=cardsHtml(f,true);
  el('todayNotice').textContent=!DATA.facilities.length?'非公開の施設マスターは未読込です。「設定・保存」からGoogle認証で読み込んでください。':masterFromSession&&!window.ldDriveConnected?'施設マスターはこの端末のブラウザ保存から自動復元しました。Googleとの同期には「設定・保存」から再認証が必要です。':state.routeSelection?.method?'AI選定・営業ルートの根拠は下記をご確認ください。':'この日付のルートは端末内で編集されたものです。';if(state.routeSelection?.date===state.routeDate){const info=state.routeSelection,box=el('aiRouteEvidence');box.style.display='block';box.innerHTML='<strong>選定方式：</strong>'+esc(info.method)+'<br><strong>根拠：</strong>'+esc(info.summary||'')+((info.items||[]).length?'<hr>'+info.items.map(x=>{let f=facById(x.id);return '<p>・'+esc(f?.name||x.id)+'：'+esc(x.reason||'')+(x.score!=null?'（参考 '+esc(x.score)+'点）':'')+(x.url?' <a target="_blank" rel="noopener noreferrer" href="'+esc(x.url)+'">根拠</a>':'')+'</p>'}).join(''):'');}else el('aiRouteEvidence').style.display='none';}
@@ -146,11 +146,11 @@ function clearMasterSession(){
 function storeMasterSession(){
  if(!Array.isArray(DATA.facilities)||!DATA.facilities.length||!integration.masterSpreadsheetId)return false;
  const payload=JSON.stringify({version:2,sheetId:integration.masterSpreadsheetId,clientId:integration.clientId,savedAt:Date.now(),facilities:DATA.facilities});
- let ok=false;
- try{localStorage.setItem(MASTER_LOCAL_KEY,payload);ok=true}catch(_e){}
- try{sessionStorage.setItem(MASTER_SESSION_KEY,payload);ok=true}catch(_e){}
- if(ok)masterCachedAt=Date.now();
- return ok;
+ let durable=false;
+ try{localStorage.setItem(MASTER_LOCAL_KEY,payload);durable=true}catch(_e){}
+ try{sessionStorage.setItem(MASTER_SESSION_KEY,payload)}catch(_e){}
+ if(durable)masterCachedAt=Date.now();
+ return durable;
 }
 function validMasterCache(p){
  const age=Date.now()-Number(p?.savedAt);
@@ -268,7 +268,7 @@ async function loadFacilityMaster(){
  DATA.sourceName='Google Drive 非公開施設マスター';
  DATA.sourceSheet='施設マスター';
  render();
- updateIntegrationUi('非公開施設マスター '+list.length+'件を認証済みGoogle Sheetsから取得しました。'+(cached?' 今後このブラウザで再読み込み・タブを開き直しても自動復元します（最大7日間）。':' ブラウザ保存が利用できないため、次回も再取得が必要です。'));
+ updateIntegrationUi('非公開施設マスター '+list.length+'件を認証済みGoogle Sheetsから取得しました。'+(cached?' 今後このブラウザで再読み込み・タブを開き直しても自動復元します（最大7日間）。':' この端末への永続保存に失敗しました。ブラウザの保存設定または空き容量をご確認ください。'));
  return list.length;
 }
 el('loadMasterBtn').onclick=withGoogle(loadFacilityMaster);
