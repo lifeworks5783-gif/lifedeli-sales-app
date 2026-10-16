@@ -158,8 +158,8 @@ async function connectGoogle(){saveIntegration();if(!window.isSecureContext||loc
  try{await loadGIS();googleTokenClient=google.accounts.oauth2.initTokenClient({client_id:integration.clientId,scope:SCOPES,callback:async r=>{
  if(r.error||!r.access_token){updateIntegrationUi('Google認証に失敗: '+(r.error||'トークンなし'),true);return}
  googleToken=r.access_token;tokenExpires=Date.now()+(Math.max(60,Number(r.expires_in)||3600)-45)*1000;updateIntegrationUi('認証しました。DriveへのバックアップとSheetsへの送信を利用できます。');
- try{await loadFacilityMaster();await syncToDrive();await syncVisitHistoryToSheet();if(state.routeDate===today()&&!state.route.length)await loadAiSelection(true)}catch(e){updateIntegrationUi('Google認証成功。ただし同期で問題: '+e.message,true)}
- }});googleTokenClient.requestAccessToken({prompt:''})}catch(e){updateIntegrationUi('Google認証: '+e.message,true)}}
+ try{await loadFacilityMaster();await syncToDrive();await syncVisitHistoryToSheet();if(state.routeDate===today()&&!state.route.length)await loadAiSelection(true)}catch(e){const stage=DATA.facilities.length?'後続のDriveバックアップまたは訪問履歴の同期':'非公開施設マスターの読み込み';const hint=/(403|permission|forbidden|access_denied)/i.test(String(e.message))?'。ログインしたGoogleアカウントに対象Sheetのアクセス権があるか確認してください。必要なら「Googleで接続」から別のアカウントを選択できます。':'';updateIntegrationUi('Google認証成功。ただし'+stage+'で問題: '+e.message+hint,true)}
+ }});googleTokenClient.requestAccessToken({prompt:'select_account'})}catch(e){updateIntegrationUi('Google認証: '+e.message,true)}}
 el('connectGoogleBtn').onclick=connectGoogle;
 el('disconnectGoogleBtn').onclick=()=>{if(googleToken&&window.google?.accounts?.oauth2)google.accounts.oauth2.revoke(googleToken,()=>{});googleToken='';tokenExpires=0;googleTokenClient=null;driveFileId='';DATA.facilities=[];render();updateIntegrationUi('Google接続解除：非公開施設マスターを画面メモリから破棄しました。端末内の訪問記録は残ります。')};
 const authOk=()=>!!googleToken&&Date.now()<tokenExpires;
