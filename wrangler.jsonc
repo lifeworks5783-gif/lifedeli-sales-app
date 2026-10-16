@@ -1,0 +1,9 @@
+{
+  "name": "lifedeli-sales-app",
+  "compatibility_date": "2026-10-16",
+  "workers_dev": true,
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "single-page-application"
+  }
+}
