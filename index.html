@@ -24,13 +24,13 @@ section.panel{display:none}section.panel.active{display:block}.box{background:va
 code{overflow-wrap:anywhere}.warning{color:#8a4e1a}
 @media(max-width:650px){.integration-grid{grid-template-columns:1fr}}
 </style></head><body>
-<div class="demo">試作 v0.3.3｜施設マスターは一度認証・取得すると、この端末の同じブラウザで自動復元します。営業データはPublic GitHubに含まれません。</div>
+<div class="demo">試作 v0.3.4｜施設マスターは一度認証・取得すると、この端末の同じブラウザで自動復元します。営業データはPublic GitHubに含まれません。</div>
 <header><div class="wrap"><div class="quiet" style="color:#d2e7f4;letter-spacing:.15em">SALES FIELD TOOL · PRIVATE</div><h1>営業管理</h1><p>ライフデリ八戸｜今日の訪問・営業先台帳・再訪フォロー</p></div></header>
-<main><div class="tabs" role="tablist" aria-label="画面切替"><button data-tab="today" class="active" role="tab" aria-selected="true">本日の10件</button><button data-tab="master" role="tab">全営業先</button><button data-tab="follow" role="tab">再訪・履歴</button><button data-tab="summary" role="tab">集計</button><button data-tab="settings" role="tab">設定・保存</button></div>
+<main><div class="tabs" role="tablist" aria-label="画面切替"><button data-tab="today" class="active" role="tab" aria-selected="true">本日の候補</button><button data-tab="master" role="tab">全営業先</button><button data-tab="follow" role="tab">再訪・履歴</button><button data-tab="summary" role="tab">集計</button><button data-tab="settings" role="tab">設定・保存</button></div>
 <section class="panel active" id="today" role="tabpanel"><div class="box"><div class="topline"><div><p class="quiet" style="margin:0">Today's route</p><h2 style="margin:2px 0">本日の営業ルート</h2><div id="routeSummary" class="quiet"></div></div><div class="tools"><button class="subbtn" id="editRouteBtn">営業先を入れ替える</button><button class="subbtn" id="mapRouteBtn">順路をマップで開く ↗</button></div></div><div class="integration-controls"><button type="button" id="loadAiBtn" class="subbtn">☁ DriveのAI選定を取込</button><button type="button" id="localSuggestBtn" class="ghost">暫定候補10件を計算</button></div><div class="kpis" id="todayKpis"></div><div class="notice quiet" id="todayNotice">指定の10件はExcelの本日の営業ルートから引継ぎました。訪問済みと自動判定しません。</div></div><div id="aiRouteEvidence" class="ai-detail" style="display:none;margin-top:11px"></div><div id="todayCards" class="cards"></div></section>
 <section class="panel" id="master" role="tabpanel"><div class="box"><div class="topline"><div><h2>営業先マスター</h2><p class="quiet" id="masterTotal"></p></div><div class="tools"><button class="subbtn" id="addCustomBtn">＋ 新しい施設を追加</button><button class="subbtn" id="exportFacilitiesBtn">施設一覧CSV</button></div></div><div class="grid"><div class="field"><label for="searchInput">事業所名・住所・種別で検索</label><input id="searchInput" type="search" placeholder="例：田面木 グループホーム" autocomplete="off"></div><div class="field"><label for="statusFilter">営業状況</label><select id="statusFilter"><option value="">全件</option><option>未訪問</option><option>訪問済み</option><option>不在</option><option>再訪</option><option>見込みあり</option><option>見込みなし</option></select></div></div><p class="quiet">検索結果は最大100件表示。実在・所在地・求人状況は最新の情報で再確認してください。</p><div id="masterCards" class="cards"></div></div></section>
 <section class="panel" id="follow" role="tabpanel"><div class="box"><h2>再訪予定・営業履歴</h2><p class="quiet">再訪日を登録するとここに表示します。履歴は変更時に追記し、上書きで消しません。</p><div id="followCards" class="cards"></div></div><div class="box"><div class="topline"><h3>直近の訪問記録</h3><button class="subbtn" id="exportVisitsBtn">訪問履歴CSV</button></div><div class="tableWrap"><table class="log-table"><thead><tr><th>記録日時</th><th>事業所</th><th>状況</th><th>再訪日</th><th>内容</th></tr></thead><tbody id="historyTable"></tbody></table></div></div></section>
-<section class="panel" id="summary" role="tabpanel"><div class="box"><h2>営業実績</h2><p class="quiet">実績は「記録した訪問履歴」から集計します。候補を表示しただけでは件数に算入しません。</p><div id="allKpis" class="kpis"></div><div id="statusBreakdown"></div></div><div class="box"><h2>AI選定・日別実績</h2><p class="quiet">記録がない営業先は、当日は未記録、翌日以降は未実施として自動集計します。非公開の選定履歴と訪問履歴を照合します。</p><div id="dailyReport"></div></div><div class="box"><h2>未実施先の再選定待ち</h2><p class="quiet">直近の選定から7日経過した未実施先は毎朝のAI選定で優先候補になります。</p><div id="pendingReturn"></div></div></section>
+<section class="panel" id="summary" role="tabpanel"><div class="box"><h2>営業実績</h2><p class="quiet">実績は「記録した訪問履歴」から集計します。候補を表示しただけでは件数に算入しません。</p><div id="allKpis" class="kpis"></div><div id="statusBreakdown"></div><div id="unvisitedQuickAdd" style="margin-top:20px"><h3>未訪問の施設から本日の候補へ追加</h3><p class="quiet">施設名・住所で検索し、今日行けそうな施設を追加できます。手動追加は最大10件、AI選定と合計20件です。</p><div class="field"><label for="summaryUnvisitedSearch">未訪問の施設を検索</label><input id="summaryUnvisitedSearch" type="search" placeholder="施設名・地区名で検索"></div><div id="summaryUnvisitedResults" class="cards"></div></div></div><div class="box"><h2>AI選定・日別実績</h2><p class="quiet">記録がない営業先は、当日は未記録、翌日以降は未実施として自動集計します。非公開の選定履歴と訪問履歴を照合します。</p><div id="dailyReport"></div></div><div class="box"><h2>未実施先の再選定待ち</h2><p class="quiet">直近の選定から7日経過した未実施先は毎朝のAI選定で優先候補になります。</p><div id="pendingReturn"></div></div></section>
 <section class="panel" id="settings" role="tabpanel"><div class="box"><h2>データ保存・復元</h2><p class="quiet">現在はこのブラウザの保存領域にのみ記録します。Safari・Chromeや別端末では同期しません。履歴を守るため、JSONバックアップを定期的に保存してください。</p><div class="tools"><button id="backupBtn">JSONバックアップ保存</button><label class="subbtn" style="display:inline-flex;align-items:center;justify-content:center;border-radius:10px;padding:10px 12px;min-height:40px;cursor:pointer;font-weight:730">JSONから復元<input type="file" id="restoreFile" accept=".json,application/json" style="display:none"></label></div><div style="margin:14px 0" class="notice quiet">この公開用プログラムには施設名簿・訪問履歴を含めていません。Google認証後に本人の非公開Sheetを読み込みます。AI自動選定は別途設定済みのタスクがシートへ書き込む方式で、このHTMLだけでは実行されません。</div><div class="grid"><div class="field"><label>表示ルートの日付</label><input id="routeDate" type="date"/></div><div class="field"><label>営業エリア名</label><input id="areaInput" placeholder="例：田面木地区"/></div></div><div class="tools" style="margin-top:13px"><button id="saveRouteMetaBtn">ルート情報を保存</button></div></div><div class="box" id="integrationSettings">
  <div class="topline"><h2>Google Drive・AI選定連携</h2><span class="integration-badge" id="driveBadge">未接続</span></div>
  <p class="quiet">非公開のGoogle Driveに営業履歴を保存し、連携台帳（Google Sheets）から当日のAI選定を読み込みます。認証に必要なOAuthクライアントIDはGoogle Cloudで作成する必要があります。</p>
@@ -47,9 +47,9 @@ code{overflow-wrap:anywhere}.warning{color:#8a4e1a}
  <div id="integrationLog" role="status" aria-live="polite" class="integration-log">未接続。Google CloudのOAuth設定後に有効化できます。</div>
  <p class="quiet">AI選定シート：<a target="_blank" rel="noopener noreferrer" id="hubSheetLink">連携台帳をGoogle Sheetsで開く ↗</a>。シートの「AI選定」に当日の日付で最大10行が記録されると取り込めます。別日・未確認の情報は自動的に本日の実績として処理しません。</p>
  </div><div class="box"><h2>引継ぎ元と検証状況</h2><div class="quiet" id="sourceStats"></div><p class="quiet">販売用・公開用ではありません。訪問履歴や取引先メモを公開GitHubに載せないでください。</p></div></section>
-<div class="footer">営業管理 v0.3.3｜Publicコード＋Private Google Sheets方式／ブラウザ内再起動復元対応</div></main>
+<div class="footer">営業管理 v0.3.4｜Publicコード＋Private Google Sheets方式／ブラウザ内再起動復元対応</div></main>
 <dialog id="recordDialog" aria-labelledby="recordTitle"><div class="inner"><h2 id="recordTitle">訪問を記録</h2><p class="quiet" id="recordName"></p><form id="recordForm"><div class="grid"><div class="field"><label for="recordStatus">訪問状況</label><select id="recordStatus" required><option value="未訪問">未訪問</option><option>訪問済み</option><option>不在</option><option>再訪</option><option>見込みあり</option><option>見込みなし</option></select></div><div class="field"><label for="recordDate">訪問日／更新日</label><input id="recordDate" type="date" required></div><div class="field"><label for="recordNext">次回訪問予定日（任意）</label><input id="recordNext" type="date"></div><div class="field"><label for="recordContact">担当者（任意）</label><input id="recordContact" type="text" placeholder="例：施設長・事務担当"></div><div class="field full"><label for="recordNote">訪問メモ（任意）</label><textarea id="recordNote" placeholder="例：厨房で困っている点、人数、提案内容、見積送付予定"></textarea></div></div><div class="row"><button type="button" id="cancelDialog" class="subbtn">閉じる</button><button type="submit">履歴へ保存する</button></div></form></div></dialog>
-<dialog id="routeDialog" aria-labelledby="routeDialogTitle"><div class="inner" style="padding:20px"><h2 id="routeDialogTitle">営業先の選択（最大10件）</h2><p class="quiet">チェックして保存してください。入力順で並びます。これ自体はAI選定や最短経路計算ではありません。</p><div class="field"><input type="search" id="routeSearch" placeholder="施設名・住所を検索"></div><div id="selectedRoute" class="chips" style="margin:10px 0"></div><div class="selectrows" id="routeCandidates"></div><div class="tools" style="margin-top:12px"><button class="subbtn" id="closeRouteDialog">閉じる</button><button id="saveRouteBtn">選択した順番で保存</button></div></div></dialog>
+<dialog id="routeDialog" aria-labelledby="routeDialogTitle"><div class="inner" style="padding:20px"><h2 id="routeDialogTitle">営業先の選択（合計最大20件）</h2><p class="quiet">AI選定10件は基本枠として保持し、手動追加は最大10件・合計最大20件までです。選択を外すと当日の候補から除外されます。</p><div class="field"><input type="search" id="routeSearch" placeholder="施設名・住所を検索"></div><div id="selectedRoute" class="chips" style="margin:10px 0"></div><div class="selectrows" id="routeCandidates"></div><div class="tools" style="margin-top:12px"><button class="subbtn" id="closeRouteDialog">閉じる</button><button id="saveRouteBtn">選択した順番で保存</button></div></div></dialog>
 <dialog id="customDialog" aria-labelledby="customDialogTitle"><div class="inner" style="padding:20px"><h2 id="customDialogTitle">営業先を追加</h2><form id="customForm"><div class="grid"><div class="field full"><label>事業所名（必須）</label><input id="customName" required></div><div class="field full"><label>住所（必須）</label><input id="customAddress" required placeholder="青森県八戸市..."></div><div class="field"><label>種別</label><input id="customType" placeholder="例：介護"></div><div class="field"><label>電話番号</label><input id="customPhone" type="tel" inputmode="tel"></div></div><div class="tools" style="margin-top:12px"><button type="button" class="subbtn" id="closeCustom">閉じる</button><button type="submit">施設を保存</button></div></form></div></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 <script id="embedded-data" type="application/json">{"sourceName":"Google Driveの非公開マスター（認証後読込）","sourceSheet":"施設マスター","snapshotDate":"","snapshotArea":"","facilities":[],"startingRoute":[]}</script>
@@ -59,9 +59,37 @@ const DATA=JSON.parse(document.getElementById('embedded-data').textContent),STOR
 const el=id=>document.getElementById(id),today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clean=s=>String(s||'').trim(),fmt=s=>s?String(s).slice(0,10):'—';
-const INITIAL=()=>({version:1,created:new Date().toISOString(),records:{},visits:[],custom:[],routeDate:today(),area:'当日のAI選定待ち',route:[]});
+const INITIAL=()=>({version:1,created:new Date().toISOString(),records:{},visits:[],custom:[],routeDate:today(),area:'当日のAI選定待ち',route:[],aiRouteIds:[],manualRouteIds:[],routeHistory:{}});
 let state;try{state=JSON.parse(localStorage.getItem(STORE))||INITIAL()}catch(e){state=INITIAL()}
 if(!state||!Array.isArray(state.visits)||!Array.isArray(state.route)||!state.records||!Array.isArray(state.custom))state=INITIAL();
+const AI_ROUTE_MAX=10,MANUAL_ROUTE_MAX=10,ROUTE_MAX=20;
+if(!state.routeHistory||typeof state.routeHistory!=='object'||Array.isArray(state.routeHistory))state.routeHistory={};
+if(!Array.isArray(state.aiRouteIds))state.aiRouteIds=[...new Set(state.route)].slice(0,AI_ROUTE_MAX);
+if(!Array.isArray(state.manualRouteIds))state.manualRouteIds=[...new Set(state.route)].filter(id=>!state.aiRouteIds.includes(id)).slice(0,MANUAL_ROUTE_MAX);
+function normalizeRouteBuckets(target=state){
+ const ai=[...new Set((target.aiRouteIds||[]).filter(Boolean))].slice(0,AI_ROUTE_MAX);
+ const manual=[...new Set((target.manualRouteIds||[]).filter(Boolean))].filter(id=>!ai.includes(id)).slice(0,MANUAL_ROUTE_MAX);
+ target.aiRouteIds=ai;target.manualRouteIds=manual;target.route=[...ai,...manual].slice(0,ROUTE_MAX);
+}
+function captureRouteHistory(){
+ if(!state.routeDate||!state.route?.length)return;
+ state.routeHistory=state.routeHistory||{};
+ state.routeHistory[state.routeDate]={ids:[...state.route],aiIds:[...state.aiRouteIds],manualIds:[...state.manualRouteIds],updatedAt:state.routeUpdatedAt||new Date().toISOString()};
+}
+function saveRouteChange(){
+ state.routeUpdatedAt=new Date().toISOString();normalizeRouteBuckets();captureRouteHistory();
+ if(!persist())return false;render();return true;
+}
+function addManualCandidate(id){
+ if(state.routeDate!==today())rolloverDate();
+ if(!facById(id)){toast('施設マスターに存在しない施設です');return false}
+ if(state.route.includes(id)){toast('すでに本日の候補に追加されています');return false}
+ if(state.route.length>=ROUTE_MAX){toast('合計上限20件です');return false}
+ if(state.manualRouteIds.length>=MANUAL_ROUTE_MAX){toast('手動追加は最大10件です');return false}
+ state.manualRouteIds.push(id);
+ if(!saveRouteChange())return false;
+ toast('本日の候補へ追加しました（'+state.route.length+'/20件）');return true;
+}
 const allFacilities=()=>DATA.facilities.concat(state.custom);
 const facById=id=>allFacilities().find(f=>f.id===id);
 const record=id=>state.records[id]||{status:'未訪問',next:'',contact:'',note:'',date:''};
@@ -73,14 +101,14 @@ function addrOk(f){return !!f.address&&f.address.length>9&&f.address!=='青森�
 function phoneUrl(f){return 'tel:'+String(f.phone||'').replace(/[^0-9+]/g,'')}
 function cardsHtml(list, ordered=false){if(!list.length)return '<div class="empty">該当する営業先はありません。</div>';
  return list.map((f,i)=>{const r=record(f.id),map=addrOk(f)?`<a class="button" href="${esc(mapUrl(f))}" target="_blank" rel="noopener noreferrer">📍 地図</a>`:'<button class="subbtn" disabled title="詳細住所がありません">住所要確認</button>';
- const phone=f.phone?`<a class="button" href="${esc(phoneUrl(f))}">☎ 電話</a>`:'';
- return `<article class="place"><div class="heading">${ordered?`<div class="order">${i+1}</div>`:''}<div style="flex:1;min-width:0"><p class="name">${esc(f.name)}</p><div class="chips"><span class="chip ${statusClass(r.status)}">${esc(r.status)}</span>${r.next?`<span class="chip hot">再訪予定 ${esc(r.next)}</span>`:''}${f.type?`<span class="chip">${esc(f.type)}</span>`:''}</div></div></div><p class="muted">${esc(f.address)} ${!addrOk(f)?'<span class="address-warning">（住所詳細要確認）</span>':''}</p>${f.service?`<p class="muted">${esc(f.service)}</p>`:''}${f.phone?`<div class="place-meta"><span>☎ ${esc(f.phone)}</span></div>`:''}${r.note?`<div class="notice quiet successnotice" style="margin-top:7px">${esc(r.note)}</div>`:''}${f.referenceNote?`<p class="quiet">元の備考：${esc(f.referenceNote)}</p>`:''}<div class="place-actions">${map}${phone}<button class="subbtn" data-action="edit" data-id="${esc(f.id)}">✎ 訪問記録</button>${!ordered?`<button class="ghost" data-action="add-route" data-id="${esc(f.id)}">今日の候補へ</button>`:''}</div></article>`}).join('')}
+ const phone=f.phone?`<a class="button" href="${esc(phoneUrl(f))}">☎ 電話</a>`:'';const added=state.route.includes(f.id),isManual=state.manualRouteIds.includes(f.id),atLimit=state.route.length>=ROUTE_MAX||state.manualRouteIds.length>=MANUAL_ROUTE_MAX;
+ return `<article class="place"><div class="heading">${ordered?`<div class="order">${i+1}</div>`:''}<div style="flex:1;min-width:0"><p class="name">${esc(f.name)}</p><div class="chips"><span class="chip ${statusClass(r.status)}">${esc(r.status)}</span>${r.next?`<span class="chip hot">再訪予定 ${esc(r.next)}</span>`:''}${f.type?`<span class="chip">${esc(f.type)}</span>`:''}${ordered?`<span class="chip ${isManual?'hot':'good'}">${isManual?'手動追加':'AI・基本選定'}</span>`:''}</div></div></div><p class="muted">${esc(f.address)} ${!addrOk(f)?'<span class="address-warning">（住所詳細要確認）</span>':''}</p>${f.service?`<p class="muted">${esc(f.service)}</p>`:''}${f.phone?`<div class="place-meta"><span>☎ ${esc(f.phone)}</span></div>`:''}${r.note?`<div class="notice quiet successnotice" style="margin-top:7px">${esc(r.note)}</div>`:''}${f.referenceNote?`<p class="quiet">元の備考：${esc(f.referenceNote)}</p>`:''}<div class="place-actions">${map}${phone}<button class="subbtn" data-action="edit" data-id="${esc(f.id)}">✎ 訪問記録</button>${!ordered?`<button class="ghost" data-action="add-route" data-id="${esc(f.id)}" ${added||atLimit?'disabled':''}>${added?'追加済み':atLimit?'上限到達':'本日の候補に追加'}</button>`:''}</div></article>`}).join('')}
 function tab(name){document.querySelectorAll('.tabs button').forEach(b=>{const a=b.dataset.tab===name;b.classList.toggle('active',a);b.setAttribute('aria-selected',String(a))});document.querySelectorAll('section.panel').forEach(p=>p.classList.toggle('active',p.id===name));render();window.scrollTo({top:0})}
 function kpi(label,val){return `<div class="kpi"><strong>${val}</strong><span>${esc(label)}</span></div>`}
 function routeFacilities(){return state.route.map(facById).filter(Boolean)}
 function hasVisitOn(id,date){return state.visits.some(v=>v.id===id&&v.date===date&&v.status!=='未訪問')}
 function renderToday(){const f=routeFacilities();el('routeSummary').textContent=`${state.routeDate||'日付未設定'} ｜ ${state.area||'エリア未設定'} ｜ ${!DATA.facilities.length&&state.route.length?state.route.length+'件の候補IDを保持（施設マスター未読込）':f.length+'件'}`;const completed=f.filter(x=>hasVisitOn(x.id,state.routeDate)).length;
- el('todayKpis').innerHTML=kpi('今日の営業先',f.length)+kpi('訪問結果の記録',completed)+kpi('未記録',f.length-completed)+kpi('見込みあり',f.filter(x=>record(x.id).status==='見込みあり').length);
+ el('todayKpis').innerHTML=kpi('本日の候補（最大20）',f.length)+kpi('AI・基本選定',state.aiRouteIds.length)+kpi('手動追加',state.manualRouteIds.length)+kpi('訪問結果の記録',completed)+'<div class="quiet" style="grid-column:1/-1">未記録 '+(f.length-completed)+'件 ／ 見込みあり '+f.filter(x=>record(x.id).status==='見込みあり').length+'件</div>';
  el('todayCards').innerHTML=cardsHtml(f,true);
  el('todayNotice').textContent=!DATA.facilities.length?'非公開の施設マスターは未読込です。「設定・保存」からGoogle認証で読み込んでください。':masterFromSession&&!window.ldDriveConnected?'施設マスターはこの端末のブラウザ保存から自動復元しました。Googleとの同期には「設定・保存」から再認証が必要です。':state.routeSelection?.method?'AI選定・営業ルートの根拠は下記をご確認ください。':'この日付のルートは端末内で編集されたものです。';if(state.routeSelection?.date===state.routeDate){const info=state.routeSelection,box=el('aiRouteEvidence');box.style.display='block';box.innerHTML='<strong>選定方式：</strong>'+esc(info.method)+'<br><strong>根拠：</strong>'+esc(info.summary||'')+((info.items||[]).length?'<hr>'+info.items.map(x=>{let f=facById(x.id);return '<p>・'+esc(f?.name||x.id)+'：'+esc(x.reason||'')+(x.score!=null?'（参考 '+esc(x.score)+'点）':'')+(x.url?' <a target="_blank" rel="noopener noreferrer" href="'+esc(x.url)+'">根拠</a>':'')+'</p>'}).join(''):'');}else el('aiRouteEvidence').style.display='none';}
 let searchDebounce;
@@ -98,7 +126,12 @@ function salesDayStats(){
  const days=new Map(),last=new Map();
  for(const r of aiLedger){let day=String(r[0]||'').slice(0,10),id=String(r[2]||'');if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||!id)continue;
  if(!days.has(day))days.set(day,new Map());days.get(day).set(id,{id,name:String(r[3]||'')});}
- if(state.routeDate===today()&&state.route.length&&!days.has(today()))days.set(today(),new Map(state.route.map(id=>[id,{id,name:facById(id)?.name||''}])));
+ // A saved per-day route is authoritative, including manually added facilities.
+ for(const [day,snapshot] of Object.entries(state.routeHistory||{})){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||!Array.isArray(snapshot?.ids)||!snapshot.ids.length)continue;
+  days.set(day,new Map(snapshot.ids.filter(Boolean).map(id=>[id,{id,name:facById(id)?.name||''}])));
+ }
+ if(state.routeDate===today()&&state.route.length)days.set(today(),new Map(state.route.map(id=>[id,{id,name:facById(id)?.name||''}])));
  const visits=[...visitLedger,...state.visits].filter(v=>v?.id&&v?.date&&v?.status&&v.status!=='未訪問');
  const dayKeys=[...days.keys()].filter(d=>d<=today()).sort();
  const summary=dayKeys.map(day=>{const items=[...days.get(day).values()],visited=items.filter(f=>visits.some(v=>v.id===f.id&&v.date===day)).length;return{day,total:items.length,visited,missed:items.length-visited,past:day<today()};});
@@ -114,13 +147,19 @@ function renderDailyReport(){
  '<div class="tableWrap"><table class="log-table"><thead><tr><th>日付</th><th>選定</th><th>訪問</th><th>未実施／未記録</th></tr></thead><tbody>'+
  (data.summary.slice(-30).reverse().map(x=>'<tr><td>'+esc(x.day)+'</td><td>'+x.total+'</td><td>'+x.visited+'</td><td>'+x.missed+' ('+(x.past?'未実施':'未記録')+')</td></tr>').join('')||'<tr><td colspan="4">なし</td></tr>')+'</tbody></table></div>';
  b.innerHTML='<p class="quiet">未実施の繰越 '+data.pending.length+'件／7日経過 '+data.due.length+'件</p><div class="tableWrap"><table class="log-table"><thead><tr><th>施設</th><th>最終選定</th><th>再選定可能日</th><th>状態</th></tr></thead><tbody>'+
- (data.pending.slice(0,40).map(x=>'<tr><td>'+esc(x.name||facById(x.id)?.name||x.id)+'</td><td>'+esc(x.day)+'</td><td>'+esc(x.due)+'</td><td>'+(x.due<=today()?'優先待ち':'待機中')+'</td></tr>').join('')||'<tr><td colspan="4">候補なし</td></tr>')+'</tbody></table></div>';
+ (data.pending.slice(0,40).map(x=>'<tr><td>'+esc(x.name||facById(x.id)?.name||x.id)+'</td><td>'+esc(x.day)+'</td><td>'+esc(x.due)+'</td><td>'+(x.due<=today()?'優先待ち':'待機中')+'<br><button class="ghost" data-action="add-route" data-id="'+esc(x.id)+'" '+(state.route.includes(x.id)||state.route.length>=ROUTE_MAX||state.manualRouteIds.length>=MANUAL_ROUTE_MAX?'disabled':'')+'>'+(state.route.includes(x.id)?'追加済み':'本日の候補に追加')+'</button></td></tr>').join('')||'<tr><td colspan="4">候補なし</td></tr>')+'</tbody></table></div>';
 }
 function renderSummary(){const current=today(),weeks=weekStart(current),months=current.slice(0,7);
  const done=state.visits.filter(v=>v.status!=='未訪問');let nDay=new Set(done.filter(v=>v.date===current).map(v=>v.id)).size;
  let nWeek=done.filter(v=>v.date>=weeks&&v.date<=current).length,nMonth=done.filter(v=>v.date.startsWith(months)).length;
  el('allKpis').innerHTML=kpi('今日の訪問先数',nDay)+kpi('今週の訪問記録',nWeek)+kpi('今月の訪問記録',nMonth)+kpi('履歴総数',done.length);
- const statuses=['未訪問','訪問済み','不在','再訪','見込みあり','見込みなし'];let statusHtml=statuses.map(s=>{let count=allFacilities().filter(f=>record(f.id).status===s).length;return `<tr><td>${esc(s)}</td><td><strong>${count}</strong>件</td></tr>`}).join('');el('statusBreakdown').innerHTML=`<h3>最新の営業状況（施設単位）</h3><table class="log-table"><tbody>${statusHtml}</tbody></table><p class="quiet">訪問履歴が複数ある場合、今週・今月の実績は各記録を数えます。</p>`;renderDailyReport()}
+ const statuses=['未訪問','訪問済み','不在','再訪','見込みあり','見込みなし'];let statusHtml=statuses.map(s=>{let count=allFacilities().filter(f=>record(f.id).status===s).length;return `<tr><td>${esc(s)}</td><td><strong>${count}</strong>件</td></tr>`}).join('');el('statusBreakdown').innerHTML=`<h3>最新の営業状況（施設単位）</h3><table class="log-table"><tbody>${statusHtml}</tbody></table><p class="quiet">訪問履歴が複数ある場合、今週・今月の実績は各記録を数えます。</p>`;renderDailyReport();renderUnvisitedQuickAdd()}
+function renderUnvisitedQuickAdd(){
+ const target=el('summaryUnvisitedResults'),search=el('summaryUnvisitedSearch');if(!target||!search)return;
+ const term=clean(search.value).toLocaleLowerCase('ja');
+ const matches=allFacilities().filter(f=>record(f.id).status==='未訪問'&&(!term||(f.name+' '+f.address+' '+f.type).toLocaleLowerCase('ja').includes(term)));
+ target.innerHTML='<p class="quiet">'+matches.length+'件該当（先頭30件を表示）</p>'+cardsHtml(matches.slice(0,30),false);
+}
 function renderSettings(){el('routeDate').value=state.routeDate;el('areaInput').value=state.area;
  el('sourceStats').innerHTML=`元Excel：${esc(DATA.sourceName)}<br>整理済みマスター（同名同住所重複統合）：${DATA.facilities.filter(f=>f.source==='整理済みリスト').length}件<br>今朝のルート：${esc(DATA.snapshotDate)}／${esc(DATA.snapshotArea)}／${DATA.startingRoute.length}件<br>追加登録：${state.custom.length}件<br>ローカル訪問履歴：${state.visits.length}件<br>同期状態：${window.ldDriveConnected?"Google認証済み（連携先の読書きは別途検証）":"未認証"}`}
 function render(){const p=document.querySelector('section.panel.active').id;if(p==='today')renderToday();if(p==='master')renderMaster();if(p==='follow')renderFollow();if(p==='summary')renderSummary();if(p==='settings')renderSettings()}
@@ -133,9 +172,9 @@ el('recordForm').addEventListener('submit',e=>{e.preventDefault();if(!editingId)
  if(persist()){el('recordDialog').close();toast('訪問記録を保存しました');render()}else{state.visits.pop()}
 });
 el('cancelDialog').onclick=()=>el('recordDialog').close();
-document.addEventListener('click',e=>{let b=e.target.closest('[data-action]');if(!b)return;const id=b.dataset.id;if(b.dataset.action==='edit')editRecord(id);if(b.dataset.action==='add-route'){if(!state.route.includes(id)){if(state.route.length>=10){toast('10件までです。先にルートの入替をしてください');return}state.route.push(id);persist();toast('今日の営業先に追加しました')}else toast('すでにルートにあります');render()}});
+document.addEventListener('click',e=>{let b=e.target.closest('[data-action]');if(!b)return;const id=b.dataset.id;if(b.dataset.action==='edit')editRecord(id);if(b.dataset.action==='add-route'){if(!state.route.includes(id)){if(!addManualCandidate(id))return}else toast('すでにルートにあります');render()}});
 document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>tab(b.dataset.tab)));
-el('searchInput').addEventListener('input',()=>{clearTimeout(searchDebounce);searchDebounce=setTimeout(renderMaster,100)});el('statusFilter').onchange=renderMaster;
+el('searchInput').addEventListener('input',()=>{clearTimeout(searchDebounce);searchDebounce=setTimeout(renderMaster,100)});el('statusFilter').onchange=renderMaster;el('summaryUnvisitedSearch').addEventListener('input',renderUnvisitedQuickAdd);
 function csv(rows){return '﻿'+rows.map(row=>row.map(val=>'"'+String(val??'').replace(/"/g,'""')+'"').join(',')).join('\r\n')}
 function download(text,name,type){const b=new Blob([text],{type}),url=URL.createObjectURL(b),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1200)}
 el('exportFacilitiesBtn').onclick=()=>{const hdr=['事業所名','種別','サービス','住所','電話','最新状況','最終更新日','再訪予定日','担当者','最新メモ','元備考'];const rows=allFacilities().map(f=>{const r=record(f.id);return[f.name,f.type,f.service,f.address,f.phone,r.status,r.date,r.next,r.contact,r.note,f.referenceNote]});download(csv([hdr,...rows]),'営業先一覧_'+today()+'.csv','text/csv;charset=utf-8')};
@@ -150,9 +189,9 @@ let routePicked=[];
 function renderRoutePicker(){const candidates=allFacilities();el('selectedRoute').innerHTML=routePicked.map((id,i)=>{const f=facById(id);return `<span class="chip">${i+1}. ${esc(f?.name||'不明')} <button class="ghost" style="min-height:24px;padding:2px 6px" data-pick-remove="${esc(id)}">×</button></span>`}).join('')||'<span class="quiet">0件選択中</span>';
  const q=clean(el('routeSearch').value).toLocaleLowerCase('ja');let hit=candidates.filter(f=>!q||(f.name+' '+f.address).toLocaleLowerCase('ja').includes(q));el('routeCandidates').innerHTML=hit.slice(0,75).map(f=>`<label class="selectrow"><input type="checkbox" data-pick="${esc(f.id)}" ${routePicked.includes(f.id)?'checked':''}><span>${esc(f.name)}<br><small>${esc(f.address)}</small></span></label>`).join('')||'<div class="empty">候補がありません</div>'}
 el('editRouteBtn').onclick=()=>{routePicked=[...state.route];el('routeSearch').value='';renderRoutePicker();el('routeDialog').showModal()};
-el('routeSearch').addEventListener('input',renderRoutePicker);el('routeCandidates').onchange=e=>{const i=e.target.dataset.pick;if(!i)return;if(e.target.checked){if(routePicked.length>=10){e.target.checked=false;toast('最大10件までです');return}routePicked.push(i)}else routePicked=routePicked.filter(x=>x!==i);renderRoutePicker()};
+el('routeSearch').addEventListener('input',renderRoutePicker);el('routeCandidates').onchange=e=>{const i=e.target.dataset.pick;if(!i)return;if(e.target.checked){if(routePicked.length>=ROUTE_MAX){e.target.checked=false;toast('合計最大20件までです');return}const newManual=routePicked.filter(x=>!state.aiRouteIds.includes(x));if(!state.aiRouteIds.includes(i)&&newManual.length>=MANUAL_ROUTE_MAX){e.target.checked=false;toast('手動追加は最大10件までです');return}routePicked.push(i)}else routePicked=routePicked.filter(x=>x!==i);renderRoutePicker()};
 el('selectedRoute').onclick=e=>{const t=e.target.closest('[data-pick-remove]');if(t){routePicked=routePicked.filter(x=>x!==t.dataset.pickRemove);renderRoutePicker()}};
-el('closeRouteDialog').onclick=()=>el('routeDialog').close();el('saveRouteBtn').onclick=()=>{if(!routePicked.length){toast('1件以上選択してください');return}state.route=[...routePicked];if(persist()){el('routeDialog').close();toast('ルートを更新しました');renderToday()}};
+el('closeRouteDialog').onclick=()=>el('routeDialog').close();el('saveRouteBtn').onclick=()=>{if(!routePicked.length){toast('1件以上選択してください');return}state.aiRouteIds=routePicked.filter(id=>state.aiRouteIds.includes(id)).slice(0,AI_ROUTE_MAX);state.manualRouteIds=routePicked.filter(id=>!state.aiRouteIds.includes(id)).slice(0,MANUAL_ROUTE_MAX);if(saveRouteChange()){el('routeDialog').close();toast('ルートを更新しました')}};
 el('addCustomBtn').onclick=()=>el('customDialog').showModal();el('closeCustom').onclick=()=>el('customDialog').close();
 el('customForm').onsubmit=e=>{e.preventDefault();const name=clean(el('customName').value),address=clean(el('customAddress').value);if(!name||!address)return;let id='c_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);state.custom.push({id,name,address,type:clean(el('customType').value),service:'',zip:'',phone:clean(el('customPhone').value),referenceNote:'',operator:'',source:'手動登録'});if(persist()){el('customDialog').close();el('customForm').reset();toast('施設を登録しました');renderMaster()}};
 
@@ -247,7 +286,12 @@ function mergeSales(remote,local){if(!validState(remote)||!validState(local))thr
  for(const v of merged.visits)merged.records[v.id]=latestRecordByTime(merged.records[v.id],v);
  const rTime=cleanV(remote.routeUpdatedAt||remote.created),lTime=cleanV(local.routeUpdatedAt||local.created);
  const current=today(),rCurrent=remote.routeDate===current,lCurrent=local.routeDate===current;const routeSource=lCurrent&&!rCurrent?local:rCurrent&&!lCurrent?remote:rCurrent&&lCurrent?(remote.route?.length&&!local.route?.length?remote:local.route?.length&&!remote.route?.length?local:rTime>lTime?remote:local):(rTime>lTime?remote:local);
- merged.route=[...new Set(routeSource.route)].filter(id=>DATA.facilities.some(f=>f.id===id)||merged.custom.some(f=>f.id===id)).slice(0,10);
+ merged.route=[...new Set(routeSource.route)].filter(id=>DATA.facilities.some(f=>f.id===id)||merged.custom.some(f=>f.id===id)).slice(0,ROUTE_MAX);
+ merged.aiRouteIds=Array.isArray(routeSource.aiRouteIds)?routeSource.aiRouteIds:[...merged.route].slice(0,AI_ROUTE_MAX);
+ merged.manualRouteIds=Array.isArray(routeSource.manualRouteIds)?routeSource.manualRouteIds:[...merged.route].slice(AI_ROUTE_MAX,ROUTE_MAX);
+ normalizeRouteBuckets(merged);
+ const history={...remote.routeHistory};for(const [day,entry] of Object.entries(local.routeHistory||{})){if(!history[day]||String(entry.updatedAt||'')>=String(history[day].updatedAt||''))history[day]=entry}
+ merged.routeHistory=history;
  merged.routeDate=routeSource.routeDate||today();merged.area=routeSource.area||'';
  merged.routeSelection=routeSource.routeSelection||null;merged.routeUpdatedAt=routeSource.routeUpdatedAt||'';merged.version=2;
  return merged;
@@ -314,9 +358,9 @@ async function loadAiSelection(silent=false){if(!authOk()){updateIntegrationUi('
  const newestByRank=new Map();for(const r of selected)newestByRank.set(r.rank,r);
  const final=[...newestByRank.values()].sort((a,b)=>a.rank-b.rank).slice(0,10);
  let unknown=final.filter(x=>!facById(x.id));if(unknown.length)throw Error('施設IDが台帳と一致しない候補が '+unknown.length+'件あります。AI選定の施設IDを確認してください。');
- if(!silent&&!confirm(day+' の候補 '+final.length+'件を読み込みますか？ 現在の営業ルートを上書きしますが、訪問履歴は消しません。'))return;
- state.route=final.map(x=>x.id);state.area=final[0]?.area||state.area;state.routeUpdatedAt=new Date().toISOString();state.routeSelection={method:final.every(x=>x.method==='Excel引継ぎ')?'Excel引継ぎ（AI選定ではありません）':'Google SheetsのAI選定',date:day,summary:'選定理由はSheetsの記録から取得。根拠URL・現況を確認してください。',items:final.map(x=>({id:x.id,score:x.score,reason:x.reason,url:x.url}))};
- persist();renderToday();updateIntegrationUi(day+' の連携台帳から '+final.length+'件を取り込みました。');
+ if(!silent&&!confirm(day+' のAI候補 '+final.length+'件を取り込みますか？ 手動追加分は残り、重複は自動的に統合します。'))return;
+ state.aiRouteIds=final.map(x=>x.id);normalizeRouteBuckets();state.area=final[0]?.area||state.area;state.routeUpdatedAt=new Date().toISOString();state.routeSelection={method:final.every(x=>x.method==='Excel引継ぎ')?'Excel引継ぎ（AI選定ではありません）':'Google SheetsのAI選定',date:day,summary:'選定理由はSheetsの記録から取得。根拠URL・現況を確認してください。',items:final.map(x=>({id:x.id,score:x.score,reason:x.reason,url:x.url}))};
+ captureRouteHistory();persist();renderToday();updateIntegrationUi(day+' のAI選定 '+final.length+'件を取り込みました（手動追加 '+state.manualRouteIds.length+'件を保持）。');
  }catch(e){updateIntegrationUi('AI選定の読込：'+e.message,true)}}
 el('loadAiBtn').onclick=loadAiSelection;
 function district(address){const s=String(address||'').replace(/^青森県八戸市(?:大字)?/,'').replace(/^八戸市(?:大字)?/,'');
@@ -342,16 +386,14 @@ function suggestLocal(){const candidates=allFacilities().map(candidate).filter(B
  const selected=[],addresses=new Set(),names=new Set();for(const f of group.list){const addr=f.address.replace(/[\s\-‐ー–]/g,'').replace(/大字|番地|番|の/g,'');const nm=f.name.replace(/[\s　・「」]/g,'');if(addresses.has(addr)||names.has(nm))continue;selected.push(f);addresses.add(addr);names.add(nm);if(selected.length>=10)break}
  // Refuse to fabricate results if there are fewer than 10 suitable facilities.
  if(!confirm('暫定ロジック（AI・求人検索なし）で '+group.name+' 地区の '+selected.length+'件を候補にしますか？現在のルートを変更します。'))return;
- state.route=selected.map(f=>f.id);state.area=group.name+'地区（暫定スコア選定）';state.routeDate=today();state.routeUpdatedAt=new Date().toISOString();state.routeSelection={method:'暫定スコア選定（AIではありません）',date:state.routeDate,summary:'元の施設リストの業態・サービス・定員・訪問履歴を評価。最新の求人・公式情報は未調査。距離最短化ではなく地区集約。',items:selected.map(x=>({id:x.id,score:x.score,reason:x.reason}))};
- persist();renderToday();toast(selected.length+'件の暫定候補を作成しました')}
+ state.aiRouteIds=selected.map(f=>f.id);normalizeRouteBuckets();state.area=group.name+'地区（暫定スコア選定）';state.routeDate=today();state.routeUpdatedAt=new Date().toISOString();state.routeSelection={method:'暫定スコア選定（AIではありません）',date:state.routeDate,summary:'元の施設リストの業態・サービス・定員・訪問履歴を評価。最新の求人・公式情報は未調査。距離最短化ではなく地区集約。',items:selected.map(x=>({id:x.id,score:x.score,reason:x.reason}))};
+ captureRouteHistory();persist();renderToday();toast(selected.length+'件の暫定候補を作成しました（手動追加は維持）')}
 el('localSuggestBtn').onclick=suggestLocal;
-// Preserve route edits as the authoritative source on later Drive merge.
-const prevSaveRoute=el('saveRouteBtn').onclick;
-el('saveRouteBtn').onclick=(e)=>{const before=JSON.stringify(state.route);prevSaveRoute(e);if(before!==JSON.stringify(state.route)){state.routeUpdatedAt=new Date().toISOString();state.routeSelection=null;persist()}};
+// Route picker saves its AI/manual buckets directly; no post-save overwrite.
 const prevSaveRouteMeta=el('saveRouteMetaBtn').onclick;
 el('saveRouteMetaBtn').onclick=(e)=>{const before=state.routeDate+'|'+state.area;prevSaveRouteMeta(e);if(before!==state.routeDate+'|'+state.area){state.routeUpdatedAt=new Date().toISOString();state.routeSelection=null;persist()}};
-if(!state.routeDate||state.routeDate<today()){state.routeDate=today();state.route=[];state.area='当日のAI選定待ち';state.routeSelection=null;state.routeUpdatedAt=new Date().toISOString();persist()}
-function rolloverDate(){if(state.routeDate&&state.routeDate<today()){state.routeDate=today();state.route=[];state.area='当日のAI選定待ち';state.routeSelection=null;state.routeUpdatedAt=new Date().toISOString();persist();render();if(authOk())loadAiSelection(true)}}
+if(state.route?.length&&!state.routeHistory?.[state.routeDate])captureRouteHistory();if(!state.routeDate||state.routeDate<today()){state.routeDate=today();state.route=[];state.aiRouteIds=[];state.manualRouteIds=[];state.area='当日のAI選定待ち';state.routeSelection=null;state.routeUpdatedAt=new Date().toISOString();persist()}
+function rolloverDate(){if(state.routeDate&&state.routeDate<today()){captureRouteHistory();state.routeDate=today();state.route=[];state.aiRouteIds=[];state.manualRouteIds=[];state.area='当日のAI選定待ち';state.routeSelection=null;state.routeUpdatedAt=new Date().toISOString();persist();render();if(authOk())loadAiSelection(true)}}
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)rolloverDate()});window.addEventListener('focus',rolloverDate);setInterval(rolloverDate,60000);
  const didRestore=restoreMasterSession();
 updateIntegrationUi(didRestore?'施設マスター '+DATA.facilities.length+'件をブラウザ内の非公開キャッシュから自動復元しました（保存日時 '+new Date(masterCachedAt).toLocaleString('ja-JP')+'）。最新情報の取得・Drive同期にはGoogle再認証が必要です。':'施設マスターの保存データがありません。一度だけGoogle認証後に「施設マスターを再取得」を押してください。以降、このブラウザでは自動復元します。');
