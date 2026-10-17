@@ -246,7 +246,7 @@ function mergeSales(remote,local){if(!validState(remote)||!validState(local))thr
  for(const id of new Set([...Object.keys(remote.records),...Object.keys(local.records)])){merged.records[id]=latestRecordByTime(remote.records[id],local.records[id])}
  for(const v of merged.visits)merged.records[v.id]=latestRecordByTime(merged.records[v.id],v);
  const rTime=cleanV(remote.routeUpdatedAt||remote.created),lTime=cleanV(local.routeUpdatedAt||local.created);
- const routeSource=(remote.routeDate===today()&&remote.route?.length&&(!local.route?.length||local.routeDate!==today()))?remote:(rTime>lTime?remote:local);
+ const current=today(),rCurrent=remote.routeDate===current,lCurrent=local.routeDate===current;const routeSource=lCurrent&&!rCurrent?local:rCurrent&&!lCurrent?remote:rCurrent&&lCurrent?(remote.route?.length&&!local.route?.length?remote:local.route?.length&&!remote.route?.length?local:rTime>lTime?remote:local):(rTime>lTime?remote:local);
  merged.route=[...new Set(routeSource.route)].filter(id=>DATA.facilities.some(f=>f.id===id)||merged.custom.some(f=>f.id===id)).slice(0,10);
  merged.routeDate=routeSource.routeDate||today();merged.area=routeSource.area||'';
  merged.routeSelection=routeSource.routeSelection||null;merged.routeUpdatedAt=routeSource.routeUpdatedAt||'';merged.version=2;
